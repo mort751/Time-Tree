@@ -4,6 +4,7 @@ addLayer("t", {
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
+        first: new Decimal(0),
     }},
     color: "rgba(156, 64, 174, 1)",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -24,4 +25,16 @@ addLayer("t", {
         {key: "t", description: "T: Timeloop for Time Crystals", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     layerShown() { return true },
+    buyables: {
+    11: {
+        title: "1st Time Dimension",
+        cost(x) { return new Decimal(1).mul(Decimal.pow(10, x.div(10).floor())) },
+        display() { return "Blah" },
+        canAfford() { return player[this.layer].points.gte(this.cost()) },
+        buy() {
+            player[this.layer].points = player[this.layer].points.sub(this.cost())
+            setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+        },
+    },
+    }
 })
