@@ -5,14 +5,23 @@ addLayer("t", {
         unlocked: true,
 		points: new Decimal(0),
         first: new Decimal(0),
+        second: new Decimal(0),
+        third: new Decimal(0),
+        fourth: new Decimal(0),
+        fifth: new Decimal(0),
+        sixth: new Decimal(0),
+        seventh: new Decimal(0),
+        eighth: new Decimal(0),
     }},
     color: "rgba(156, 64, 174, 1)",
-    requires: new Decimal(10), // Can be a function that takes requirement increases into account
+    requires: new Decimal(5), // Can be a function that takes requirement increases into account
     resource: "Time Crystals", // Name of prestige currency
     baseResource: "Seconds", // Name of resource prestige is based on
     baseAmount() { return player.points }, // Get the current amount of baseResource
-    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    exponent: 0.5, // Prestige currency exponent
+    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    exponent: 1.025, // Prestige currency exponent
+    base: 2,
+    resetDescription: "Timeloop for: ",
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
         return mult
@@ -25,21 +34,36 @@ addLayer("t", {
         {key: "t", description: "T: Timeloop for Time Crystals", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     layerShown() { return true },
+    update(diff) {
+    player[this.layer].first = player[this.layer].first.add(tmp[this.layer].buyables[21].amount.mul(diff))
+    },
     componentStyles: {
-    "upgrade"() { return {'height': '150px', 'width': '350px'} },
+    "buyable"() { return {'height': '150px', 'width': '350px', 'font-size': '11.5px'} },
     },
     buyables: {
     11: {
-        title: function() { return "1st Time Dimension (x" + format(getBuyableAmount(this.layer, this.id)) + ")" },
-        cost(x) { return new Decimal(1).mul(Decimal.pow(10, x.div(10).floor())) },
-        display() { return "Cost: " + format(this.cost()) + "Time Crystals\nProduction: " },
+        title: function() { return "Time Dimension 1 (" + format(getBuyableAmount(this.layer, this.id)) + ")" },
+        cost(x=getBuyableAmount(this.layer, this.id)) { return new Decimal(1).mul(x.add(1)).mul(Decimal.pow(10, x.div(10).floor())) },
+        display() { return "Cost: " + format(this.cost()) + " Time Crystals\nProduction: " + format(buyableEffect(this.layer, this.id)) + " Seconds/sec"},
         canAfford() { return player[this.layer].points.gte(this.cost()) },
         buy() {
             player[this.layer].points = player[this.layer].points.sub(this.cost())
             setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
         },
-        amount() { return getBuyableAmount(this.layer, this.id) },
+        amount() { return getBuyableAmount(this.layer, this.id).add(player[this.layer].first) },
         effect() { return tmp[this.layer].buyables[this.id].amount }
+    },
+    21: {
+        title: function() { return "Time Dimension 2 (" + format(getBuyableAmount(this.layer, this.id)) + ")" },
+        cost(x=getBuyableAmount(this.layer, this.id)) { return new Decimal(100).mul(x.add(1)).mul(Decimal.pow(10, x.div(10).floor())) },
+        display() { return "Cost: " + format(this.cost()) + " Time Crystals\nProduction: " + format(buyableEffect(this.layer, this.id)) + " Seconds/sec"},
+        canAfford() { return player[this.layer].points.gte(this.cost()) },
+        buy() {
+            player[this.layer].points = player[this.layer].points.sub(this.cost())
+            setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+        },
+        amount() { return getBuyableAmount(this.layer, this.id).add(player[this.layer].second) },
+        effect() { return tmp[this.layer].buyables[this.id].amount.mul(0.1) }
     },
     }
 })
