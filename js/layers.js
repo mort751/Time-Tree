@@ -25,16 +25,21 @@ addLayer("t", {
         {key: "t", description: "T: Timeloop for Time Crystals", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     layerShown() { return true },
+    componentStyles: {
+    "upgrade"() { return {'height': '150px', 'width': '350px'} },
+    },
     buyables: {
     11: {
-        title: "1st Time Dimension",
+        title: function() { return "1st Time Dimension (x" + format(getBuyableAmount(this.layer, this.id)) + ")" },
         cost(x) { return new Decimal(1).mul(Decimal.pow(10, x.div(10).floor())) },
-        display() { return "Blah" },
+        display() { return "Cost: " + format(this.cost()) + "Time Crystals\nProduction: " },
         canAfford() { return player[this.layer].points.gte(this.cost()) },
         buy() {
             player[this.layer].points = player[this.layer].points.sub(this.cost())
             setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
         },
+        amount() { return getBuyableAmount(this.layer, this.id) },
+        effect() { return tmp[this.layer].buyables[this.id].amount }
     },
     }
 })
